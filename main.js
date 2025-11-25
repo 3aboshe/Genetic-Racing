@@ -51,13 +51,15 @@ const track = {
 
 // Build a complex track with walls
 (function buildTrack(){
-  // Define center path points (Easier: Smooth Oval)
+  // Define center path points (Moderate difficulty: Oval with a slight twist)
   const points = [
     {x: 150, y: 360}, // Start
     {x: 350, y: 150}, // Top Left
-    {x: 800, y: 150}, // Top Right
+    {x: 700, y: 150}, // Top Right (Start of twist)
+    {x: 850, y: 250}, // Dip
+    {x: 1000, y: 150}, // Up again
     {x: 1100, y: 360}, // Far Right
-    {x: 800, y: 570}, // Bottom Right
+    {x: 900, y: 570}, // Bottom Right
     {x: 350, y: 570}  // Bottom Left
   ];
   
@@ -86,7 +88,7 @@ const track = {
   }
 
   // Generate walls
-  const w = 55; // Wider (Easier)
+  const w = 45; // Slightly wider (Easier)
   for(let i=0; i<track.centerLine.length; i++){
     const p1 = track.centerLine[i];
     const p2 = track.centerLine[(i+1)%track.centerLine.length];
