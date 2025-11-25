@@ -35,6 +35,7 @@ carImages.orange.src = 'assets/orangef1.png';
 carImages.green.src = 'assets/greenf1.png';
 
 let running = false;
+let frame = 0;
 let simSpeed = Number(speedEl.value);
 let populationSize = Number(popSizeEl.value);
 
@@ -327,7 +328,9 @@ class Brain {
       out.push(Math.tanh(sum)); // -1 to 1
     }
     
-    Brain._debug = {inputs, hid, out};
+    this.lastInputs = inputs;
+    this.lastHidden = hid;
+    this.lastOutput = out;
     return out;
   }
 }
@@ -436,6 +439,16 @@ function loop(){
   });
   best.draw(ctx, true); // Draw best on top
   
+  // Update Math UI (Throttle to every 5 frames)
+  if(frame % 5 === 0 && best.brain.lastInputs){
+    const fmt = arr => arr.map(n => n.toFixed(2)).join(', ');
+    inputsEl.textContent = fmt(best.brain.lastInputs);
+    weightsEl.textContent = fmt(best.brain.weights.slice(0,10)) + '...';
+    actsEl.textContent = 'Hidden: ' + fmt(best.brain.lastHidden) + '\nOutput: ' + fmt(best.brain.lastOutput);
+    fitnessEl.textContent = `Checkpoints: ${best.checkpointIndex}\nDist Score: ${(best.fitness - best.checkpointIndex).toFixed(3)}\nTotal: ${best.fitness.toFixed(3)}`;
+  }
+  frame++;
+
   requestAnimationFrame(loop);
 }
 
