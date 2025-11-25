@@ -22,31 +22,37 @@
     <main>
       <canvas id="scene" width="1200" height="720"></canvas>
       <aside id="panel">
-        <div class="stat"><strong>Generation:</strong> <span id="gen">0</span></div>
-        <div class="stat"><strong>Best Fitness:</strong> <span id="best">0</span></div>
-        <div class="stat"><strong>Alive:</strong> <span id="alive">0</span></div>
-        <div class="stat"><strong>Speed:</strong> <span id="speedVal">3</span>x</div>
+        <div class="stats-bar">
+          <div class="stat"><strong>Generation:</strong> <span id="gen">0</span></div>
+          <div class="stat"><strong>Best Fitness:</strong> <span id="best">0</span></div>
+          <div class="stat"><strong>Alive:</strong> <span id="alive">0</span></div>
+          <div class="stat"><strong>Speed:</strong> <span id="speedVal">3</span>x</div>
+        </div>
 
-        <details open>
-          <summary>Top Car Details & Math</summary>
-          <div id="mathBox">
-            <div><strong>Neural Inputs:</strong> <pre id="inputs">[]</pre></div>
-            <div><strong>Weights (sample):</strong> <pre id="weights">[]</pre></div>
-            <div><strong>Activations:</strong> <pre id="activations">[]</pre></div>
-            <div><strong>Fitness Calculation:</strong> <pre id="fitnessCalc">[]</pre></div>
+        <div class="panel-content">
+          <details open id="mathDetails">
+            <summary>Top Car Details & Math</summary>
+            <div id="mathBox">
+              <div><strong>Neural Inputs:</strong> <pre id="inputs">[]</pre></div>
+              <div><strong>Weights (sample):</strong> <pre id="weights">[]</pre></div>
+              <div><strong>Activations:</strong> <pre id="activations">[]</pre></div>
+              <div><strong>Fitness Calculation:</strong> <pre id="fitnessCalc">[]</pre></div>
+            </div>
+          </details>
+
+          <div class="panel-sidebar">
+            <details open>
+              <summary>Genetic Settings</summary>
+              <div class="setting"><label>Mutation Rate: <input id="mutRate" type="range" min="0" max="1" step="0.01" value="0.05"></label></div>
+              <div class="setting"><label>Crossover Rate: <input id="crossRate" type="range" min="0" max="1" step="0.01" value="0.7"></label></div>
+            </details>
+
+            <div class="legend">
+              <strong>Generation Color:</strong>
+              <div id="legendBar"></div>
+              <small>Red = early (poor), Green = mastered track</small>
+            </div>
           </div>
-        </details>
-
-        <details>
-          <summary>Genetic Settings</summary>
-          <div class="setting"><label>Mutation Rate: <input id="mutRate" type="range" min="0" max="1" step="0.01" value="0.05"></label></div>
-          <div class="setting"><label>Crossover Rate: <input id="crossRate" type="range" min="0" max="1" step="0.01" value="0.7"></label></div>
-        </details>
-
-        <div class="legend">
-          <strong>Generation Color:</strong>
-          <div id="legendBar"></div>
-          <small>Red = early (poor), Green = mastered track</small>
         </div>
       </aside>
     </main>
