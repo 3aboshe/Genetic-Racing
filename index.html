@@ -9,26 +9,27 @@
 <body>
   <div id="app">
     <header>
-      <h1>Genetic Algorithm F1 Racing — Interactive Math Tutor</h1>
-      <div class="controls">
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn">Pause</button>
-        <button id="resetBtn">Reset</button>
-        <label>Speed: <input id="speed" type="range" min="1" max="10" value="3"></label>
-        <label>Population: <input id="popSize" type="number" min="10" max="500" value="50"></label>
+      <div class="header-top">
+        <h1>Genetic Algorithm F1 Racing — Interactive Math Tutor</h1>
+        <div class="controls">
+          <button id="startBtn">Start</button>
+          <button id="pauseBtn">Pause</button>
+          <button id="resetBtn">Reset</button>
+          <label>Speed: <input id="speed" type="range" min="1" max="10" value="3"></label>
+          <label>Population: <input id="popSize" type="number" min="10" max="500" value="50"></label>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat"><strong>Generation:</strong> <span id="gen">0</span></div>
+        <div class="stat"><strong>Best Fitness:</strong> <span id="best">0</span></div>
+        <div class="stat"><strong>Alive:</strong> <span id="alive">0</span></div>
+        <div class="stat"><strong>Speed:</strong> <span id="speedVal">3</span>x</div>
       </div>
     </header>
 
     <main>
       <canvas id="scene" width="1200" height="720"></canvas>
       <aside id="panel">
-        <div class="stats-bar">
-          <div class="stat"><strong>Generation:</strong> <span id="gen">0</span></div>
-          <div class="stat"><strong>Best Fitness:</strong> <span id="best">0</span></div>
-          <div class="stat"><strong>Alive:</strong> <span id="alive">0</span></div>
-          <div class="stat"><strong>Speed:</strong> <span id="speedVal">3</span>x</div>
-        </div>
-
         <div class="panel-content">
           <details open id="mathDetails">
             <summary>Top Car Details & Math</summary>
