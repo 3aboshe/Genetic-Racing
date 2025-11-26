@@ -39,6 +39,7 @@ let running = false;
 let frame = 0;
 let simSpeed = Number(speedEl.value);
 let populationSize = Number(popSizeEl.value);
+let currentLevel = 1;
 
 // Track definition
 const track = {
@@ -52,6 +53,7 @@ const track = {
 
 // Build a complex track with walls
 function buildTrack(level = 1){
+  currentLevel = level;
   track.centerLine = [];
   track.innerWall = [];
   track.outerWall = [];
@@ -86,7 +88,7 @@ function buildTrack(level = 1){
       {x: 900, y: 600}, // Bottom right
       {x: 300, y: 600}  // Long bottom straight
     ];
-    w = 40; // Narrower
+    w = 45; // Same width as Level 1 (was 40)
   }
   
   // Catmull-Rom Spline Interpolation for smooth curves
@@ -164,10 +166,24 @@ class Car {
     this.throttle = 0;
     this.width = 20; 
     this.length = 40;
-    this.maxSpeed = 12.0; // Faster = Harder to control
+    this.maxSpeed = 11.0; // Slightly slower for better control
     this.alive = true;
     this.age = 0;
-    this.brain = brain || new Brain();
+    
+    // Special Algorithm for Level 2: Deeper Brain
+    if(!brain){
+      if(currentLevel === 2){
+        // Level 2: 13 sensors + 2 feedback = 15 inputs. 18 hidden neurons.
+        // Reduced complexity slightly to help them learn faster
+        this.brain = new Brain(15, 18, 2);
+      } else {
+        // Level 1: 9 sensors + 2 feedback = 11 inputs. 12 hidden neurons.
+        this.brain = new Brain(11, 12, 2);
+      }
+    } else {
+      this.brain = brain;
+    }
+
     this.generation = generation;
     this.distance = 0;
     this.checkpointIndex = 0;
@@ -193,7 +209,8 @@ class Car {
     if(this.age > 20 && currentSpeed < 1.5) this.alive = false;
 
     // Sensors (Ray casting)
-    const rays = 9; // More eyes = better vision
+    // Level 2 gets more sensors (13 vs 9)
+    const rays = currentLevel === 2 ? 13 : 9;
     const maxDist = 180;
     this.sensors = [];
     
@@ -230,7 +247,7 @@ class Car {
     if(this.sensors.some(s => s < 0.05)) this.alive = false;
 
     // Inputs
-    const inputs = [...this.sensors, this.throttle, this.steer]; // 9 + 2 = 11 inputs
+    const inputs = [...this.sensors, this.throttle, this.steer]; // rays + 2 inputs
     const out = this.brain.predict(inputs);
     
     this.steer = clamp(out[0]*2-1, -1, 1); // -1 to 1
@@ -240,7 +257,9 @@ class Car {
     const speed = Math.hypot(this.vel.x, this.vel.y);
     
     // Turning
-    this.angle += this.steer * 0.1 * (speed/this.maxSpeed);
+    // Level 2 gets sharper steering
+    const steerFactor = currentLevel === 2 ? 0.15 : 0.1;
+    this.angle += this.steer * steerFactor * (speed/this.maxSpeed);
     
     // Acceleration
     const force = {x: Math.cos(this.angle)*this.throttle*0.5, y: Math.sin(this.angle)*this.throttle*0.5};
@@ -394,7 +413,8 @@ function evolve(){
     const p1 = population[Math.floor(Math.random()*population.length/2)]; // Top 50%
     const p2 = population[Math.floor(Math.random()*population.length/2)];
     const childGenes = mutate(crossover(p1.brain.getGenes(), p2.brain.getGenes()), Number(mutRateEl.value));
-    const childBrain = new Brain();
+    // Inherit brain structure from parents
+    const childBrain = new Brain(p1.brain.i, p1.brain.h, p1.brain.o);
     childBrain.setGenes(childGenes);
     newPop.push(new Car(childBrain, generation+1));
   }
