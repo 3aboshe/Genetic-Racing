@@ -21,6 +21,7 @@ const actsEl = document.getElementById('activations');
 const fitnessEl = document.getElementById('fitnessCalc');
 const mutRateEl = document.getElementById('mutRate');
 const crossRateEl = document.getElementById('crossRate');
+const levelSelect = document.getElementById('levelSelect');
 
 // Load assets
 const carImages = {
@@ -50,18 +51,43 @@ const track = {
 };
 
 // Build a complex track with walls
-(function buildTrack(){
-  // Define center path points (Moderate difficulty: Oval with a slight twist)
-  const points = [
-    {x: 150, y: 360}, // Start
-    {x: 350, y: 150}, // Top Left
-    {x: 700, y: 150}, // Top Right (Start of twist)
-    {x: 850, y: 250}, // Dip
-    {x: 1000, y: 150}, // Up again
-    {x: 1100, y: 360}, // Far Right
-    {x: 900, y: 570}, // Bottom Right
-    {x: 350, y: 570}  // Bottom Left
-  ];
+function buildTrack(level = 1){
+  track.centerLine = [];
+  track.innerWall = [];
+  track.outerWall = [];
+  track.checkpoints = [];
+
+  let points = [];
+  let w = 45;
+
+  if(level == 1) {
+    // Level 1: Moderate difficulty (Oval with a slight twist)
+    points = [
+      {x: 150, y: 360}, // Start
+      {x: 350, y: 150}, // Top Left
+      {x: 700, y: 150}, // Top Right (Start of twist)
+      {x: 850, y: 250}, // Dip
+      {x: 1000, y: 150}, // Up again
+      {x: 1100, y: 360}, // Far Right
+      {x: 900, y: 570}, // Bottom Right
+      {x: 350, y: 570}  // Bottom Left
+    ];
+    w = 45;
+  } else {
+    // Level 2: Hard (S-Curves and Hairpins)
+    points = [
+      {x: 100, y: 360}, // Start
+      {x: 250, y: 150}, // Up
+      {x: 400, y: 360}, // Down (S1)
+      {x: 550, y: 150}, // Up (S2)
+      {x: 700, y: 360}, // Down (S3)
+      {x: 900, y: 150}, // Long straight top right
+      {x: 1100, y: 360}, // Far right hairpin
+      {x: 900, y: 600}, // Bottom right
+      {x: 300, y: 600}  // Long bottom straight
+    ];
+    w = 40; // Narrower
+  }
   
   // Catmull-Rom Spline Interpolation for smooth curves
   function spline(p0, p1, p2, p3, t) {
@@ -88,7 +114,6 @@ const track = {
   }
 
   // Generate walls
-  const w = 45; // Slightly wider (Easier)
   for(let i=0; i<track.centerLine.length; i++){
     const p1 = track.centerLine[i];
     const p2 = track.centerLine[(i+1)%track.centerLine.length];
@@ -106,7 +131,8 @@ const track = {
   }
   
   track.start = {x: track.centerLine[0].x, y: track.centerLine[0].y, angle: Math.atan2(track.centerLine[1].y - track.centerLine[0].y, track.centerLine[1].x - track.centerLine[0].x)};
-})();
+}
+buildTrack(1);
 
 // Utility functions
 function rand(min=-1,max=1){return Math.random()*(max-min)+min}
@@ -393,38 +419,40 @@ function loop(){
   }
   
   // Render
-  // Clear background (White for light theme)
-  ctx.fillStyle = '#ffffff';
+  // Background (Grass)
+  ctx.fillStyle = '#567d46'; 
   ctx.fillRect(0,0,W,H);
   
   // Draw Track
-  // Walls
-  ctx.strokeStyle = '#d1d1d6'; // Light gray border
-  ctx.lineWidth = 3;
-  
-  // Inner wall
-  ctx.beginPath();
-  track.innerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-  ctx.closePath(); ctx.stroke();
-  
-  // Outer wall
-  ctx.beginPath();
-  track.outerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
-  ctx.closePath(); ctx.stroke();
-  
-  // Track surface (Light concrete/asphalt)
+  // Track surface (Dark Asphalt)
   ctx.save();
   ctx.beginPath();
   track.outerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
   ctx.closePath();
-  ctx.fillStyle = '#f2f2f7'; // Very light gray track
+  ctx.fillStyle = '#333333';
   ctx.fill();
   
-  ctx.globalCompositeOperation = 'destination-out';
+  // Inner Grass (Island)
   ctx.beginPath();
   track.innerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
   ctx.closePath();
+  ctx.fillStyle = '#567d46';
   ctx.fill();
+  
+  // Borders (Kerbs)
+  ctx.strokeStyle = '#cccccc';
+  ctx.lineWidth = 4;
+  
+  ctx.beginPath();
+  track.innerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.stroke();
+  
+  ctx.beginPath();
+  track.outerWall.forEach((p,i) => i==0?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y));
+  ctx.closePath();
+  ctx.stroke();
+  
   ctx.restore();
   
   // Draw Checkpoints (debug)
@@ -463,6 +491,11 @@ resetBtn.onclick = () => {
 speedEl.oninput = () => { simSpeed = Number(speedEl.value); speedVal.textContent = simSpeed; };
 popSizeEl.onchange = () => {
   populationSize = Number(popSizeEl.value);
+  init();
+  updateUI();
+};
+levelSelect.onchange = () => {
+  buildTrack(Number(levelSelect.value));
   init();
   updateUI();
 };
